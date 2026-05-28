@@ -2,40 +2,40 @@ package br.com.livraria.model;
 
 public class Estado {
 
-    private int id;
-    private String nomeEstado;
-    private String siglaEstado;
+    private int codigo;
+    private String descricao;
+    private String uf;
 
     public Estado() {
     }
 
-    public Estado(int id, String nomeEstado, String siglaEstado) {
-        this.id = id;
-        this.nomeEstado = nomeEstado;
-        this.siglaEstado = siglaEstado;
+    public Estado(int codigo, String descricao, String uf) {
+        this.codigo = codigo;
+        this.descricao = descricao;
+        this.uf = uf;
     }
 
-    public int getId() {
-        return id;
+    public int getCodigo() {
+        return codigo;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setCodigo(int codigo) {
+        this.codigo = codigo;
     }
 
-    public String getNomeEstado() {
-        return nomeEstado;
+    public String getDescricao() {
+        return descricao;
     }
 
-    public void setNomeEstado(String nomeEstado) {
-        this.nomeEstado = nomeEstado;
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 
-    public String getSiglaEstado() {
-        return siglaEstado;
+    public String getUf() {
+        return uf;
     }
 
-    public void setSiglaEstado(String siglaEstado) {
-        this.siglaEstado = siglaEstado;
+    public void setUf(String uf) {
+        this.uf = uf;
     }
 }

@@ -15,18 +15,18 @@ import java.util.stream.Collectors;
 @WebServlet(urlPatterns = {"/estados", "/estados/novo", "/estados/inserir", "/estados/editar", "/estados/atualizar", "/estados/excluir"})
 public class EstadoServlet extends HttpServlet {
 
-    private EstadoDAO estadoDAO;
+    private EstadoDAO repositorioEstado;
 
     @Override
     public void init() {
-        estadoDAO = new EstadoDAO();
+        repositorioEstado = new EstadoDAO();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getServletPath();
+        String rota = request.getServletPath();
 
-        switch (action) {
+        switch (rota) {
             case "/estados/novo":
                 mostrarFormularioNovo(request, response);
                 break;
@@ -45,9 +45,9 @@ public class EstadoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        String action = request.getServletPath();
+        String rota = request.getServletPath();
 
-        switch (action) {
+        switch (rota) {
             case "/estados/inserir":
                 inserirEstado(request, response);
                 break;
@@ -61,8 +61,8 @@ public class EstadoServlet extends HttpServlet {
     }
 
     private void listarEstados(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Estado> listEstados = estadoDAO.listarTodos();
-        request.setAttribute("listEstados", listEstados);
+        List<Estado> listaEstados = repositorioEstado.listarTodos();
+        request.setAttribute("listaEstados", listaEstados);
         request.getRequestDispatcher("/estado-list.jsp").forward(request, response);
     }
 
@@ -72,60 +72,60 @@ public class EstadoServlet extends HttpServlet {
     }
 
     private void mostrarFormularioEdicao(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        Estado estadoExistente = estadoDAO.buscarPorId(id);
-        request.setAttribute("estado", estadoExistente);
+        int codigo = Integer.parseInt(request.getParameter("id"));
+        Estado estadoEdicao = repositorioEstado.buscarPorId(codigo);
+        request.setAttribute("estado", estadoEdicao);
         prepararFormulario(request);
         request.getRequestDispatcher("/estado-form.jsp").forward(request, response);
     }
 
     private void inserirEstado(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Estado novoEstado = extrairEstadoDoRequest(request);
+        Estado registroEstado = extrairEstadoDoRequest(request);
 
-        if (estadoDAO.existeSiglaEstado(novoEstado.getSiglaEstado(), null)) {
+        if (repositorioEstado.ufJaCadastrada(registroEstado.getUf(), null)) {
             request.setAttribute("erro", "A sigla informada ja esta cadastrada.");
-            request.setAttribute("estado", novoEstado);
+            request.setAttribute("estado", registroEstado);
             prepararFormulario(request);
             request.getRequestDispatcher("/estado-form.jsp").forward(request, response);
             return;
         }
 
-        estadoDAO.adicionar(novoEstado);
+        repositorioEstado.adicionar(registroEstado);
         response.sendRedirect(request.getContextPath() + "/estados");
     }
 
     private void atualizarEstado(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Estado estadoAtualizado = extrairEstadoDoRequest(request);
-        estadoAtualizado.setId(Integer.parseInt(request.getParameter("id")));
+        Estado estadoModificado = extrairEstadoDoRequest(request);
+        estadoModificado.setCodigo(Integer.parseInt(request.getParameter("id")));
 
-        if (estadoDAO.existeSiglaEstado(estadoAtualizado.getSiglaEstado(), estadoAtualizado.getId())) {
+        if (repositorioEstado.ufJaCadastrada(estadoModificado.getUf(), estadoModificado.getCodigo())) {
             request.setAttribute("erro", "A sigla informada ja esta cadastrada.");
-            request.setAttribute("estado", estadoAtualizado);
+            request.setAttribute("estado", estadoModificado);
             prepararFormulario(request);
             request.getRequestDispatcher("/estado-form.jsp").forward(request, response);
             return;
         }
 
-        estadoDAO.atualizar(estadoAtualizado);
+        repositorioEstado.atualizar(estadoModificado);
         response.sendRedirect(request.getContextPath() + "/estados");
     }
 
     private void excluirEstado(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        estadoDAO.remover(id);
+        int codigo = Integer.parseInt(request.getParameter("id"));
+        repositorioEstado.remover(codigo);
         response.sendRedirect(request.getContextPath() + "/estados");
     }
 
     private void prepararFormulario(HttpServletRequest request) {
-        List<String> siglasExistentes = estadoDAO.listarTodos().stream()
-                .map(e -> e.getSiglaEstado().toUpperCase())
+        List<String> ufsCadastradas = repositorioEstado.listarTodos().stream()
+                .map(e -> e.getUf().toUpperCase())
                 .collect(Collectors.toList());
-        request.setAttribute("siglasExistentes", siglasExistentes);
+        request.setAttribute("ufsCadastradas", ufsCadastradas);
     }
 
     private Estado extrairEstadoDoRequest(HttpServletRequest request) {
-        String nomeEstado = request.getParameter("nomeEstado");
-        String siglaEstado = request.getParameter("siglaEstado");
-        return new Estado(0, nomeEstado, siglaEstado);
+        String descricao = request.getParameter("descricao");
+        String uf = request.getParameter("uf");
+        return new Estado(0, descricao, uf);
     }
 }

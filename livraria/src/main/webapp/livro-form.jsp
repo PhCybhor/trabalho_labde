@@ -96,6 +96,27 @@
             box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
         }
 
+        .form-control.invalid {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+        }
+
+        .field-error {
+            display: none;
+            color: #f87171;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .alert-error {
+            background: rgba(220, 38, 38, 0.15);
+            border: 1px solid rgba(220, 38, 38, 0.35);
+            color: #fca5a5;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -180,19 +201,29 @@
                 </c:choose>
             </h2>
 
-            <form action="${pageContext.request.contextPath}/livros/${livro != null ? 'atualizar' : 'inserir'}" method="post">
+            <c:if test="${not empty erroEmail}">
+                <div class="alert-error"><c:out value="${erroEmail}" /></div>
+            </c:if>
+
+            <form id="formLivro" action="${pageContext.request.contextPath}/livros/${livro != null ? 'atualizar' : 'inserir'}" method="post" novalidate>
                 <c:if test="${livro != null}">
-                    <input type="hidden" name="id" value="<c:out value='${livro.id}' />" />
+                    <input type="hidden" name="id" value="<c:out value='${livro.codigo}' />" />
                 </c:if>
 
                 <div class="form-group">
                     <label class="form-label">Titulo</label>
-                    <input type="text" class="form-control" name="nomeLivro" value="<c:out value='${livro.nomeLivro}' />" required maxlength="255">
+                    <input type="text" class="form-control" name="titulo" value="<c:out value='${livro.titulo}' />" required maxlength="255">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Autor</label>
                     <input type="text" class="form-control" name="autor" value="<c:out value='${livro.autor}' />" required maxlength="255">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">E-mail</label>
+                    <input type="email" id="email" class="form-control" name="email" value="<c:out value='${livro.email}' />" required maxlength="255">
+                    <p id="emailErro" class="field-error">E-mail invalido ou ja cadastrado.</p>
                 </div>
 
                 <div class="form-row">
@@ -203,13 +234,13 @@
                     
                     <div class="form-group">
                         <label class="form-label">Publicacao</label>
-                        <input type="date" class="form-control" name="dataPublicacao" value="<c:out value='${livro.dataPublicacao}' />" min="1500-01-01" max="2100-12-31" required>
+                        <input type="date" class="form-control" name="dtPublicacao" value="<c:out value='${livro.dtPublicacao}' />" min="1500-01-01" max="2100-12-31" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Valor (R$)</label>
-                    <input type="number" step="0.01" class="form-control" name="valorLivro" value="<c:out value='${livro.valorLivro}' />" min="0" required>
+                    <input type="number" step="0.01" class="form-control" name="preco" value="<c:out value='${livro.preco}' />" min="0" required>
                 </div>
 
                 <div class="action-buttons">
@@ -223,6 +254,53 @@
     <footer class="footer">
         <p>Sistema de Biblioteca • Desenvolvido por Equipe</p>
     </footer>
+
+    <script>
+        const emailsCadastrados = [
+            <c:forEach var="emailItem" items="${emailsCadastrados}" varStatus="status">
+            '<c:out value="${emailItem}" />'<c:if test="${!status.last}">,</c:if>
+            </c:forEach>
+        ];
+
+        const emailInput = document.getElementById('email');
+        const emailErro = document.getElementById('emailErro');
+        const formLivro = document.getElementById('formLivro');
+        const idInput = document.querySelector('input[name="id"]');
+        const emailEdicao = ('<c:out value="${livro.email}" />' || '').trim().toLowerCase();
+        const regexEmail = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/;
+
+        function validarEmail(mostrarErro) {
+            const emailAtual = (emailInput.value || '').trim().toLowerCase();
+            let mensagem = '';
+
+            if (!emailAtual) {
+                mensagem = 'O e-mail e obrigatorio.';
+            } else if (!regexEmail.test(emailAtual)) {
+                mensagem = 'Informe um e-mail valido.';
+            } else {
+                const emEdicao = !!idInput && emailAtual === emailEdicao;
+                if (!emEdicao && emailsCadastrados.includes(emailAtual)) {
+                    mensagem = 'O e-mail informado ja esta cadastrado.';
+                }
+            }
+
+            emailErro.textContent = mensagem;
+            emailErro.style.display = mensagem && mostrarErro ? 'block' : 'none';
+            emailInput.classList.toggle('invalid', !!mensagem);
+            return !mensagem;
+        }
+
+        emailInput.addEventListener('input', function () {
+            validarEmail(true);
+        });
+
+        formLivro.addEventListener('submit', function (event) {
+            if (!validarEmail(true)) {
+                event.preventDefault();
+                emailInput.focus();
+            }
+        });
+    </script>
 
 </body>
 </html>

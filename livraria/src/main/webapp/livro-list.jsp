@@ -247,7 +247,7 @@
         </header>
 
         <c:choose>
-            <c:when test="${empty listLivros}">
+            <c:when test="${empty listaLivros}">
                 <div class="empty-state">
                     <h2 style="margin-bottom: 1rem;">Nenhum item encontrado</h2>
                     <p style="color: var(--text-muted);">A biblioteca esta vazia.</p>
@@ -255,10 +255,10 @@
             </c:when>
             <c:otherwise>
                 <div class="book-grid">
-                    <c:forEach var="livro" items="${listLivros}">
+                    <c:forEach var="livro" items="${listaLivros}">
                         <div class="book-card">
-                            <span class="book-id">ID #<c:out value="${livro.id}" /></span>
-                            <h2 class="book-title"><c:out value="${livro.nomeLivro}" /></h2>
+                            <span class="book-id">ID #<c:out value="${livro.codigo}" /></span>
+                            <h2 class="book-title"><c:out value="${livro.titulo}" /></h2>
                             <p class="book-author"><c:out value="${livro.autor}" /></p>
 
                             <div class="book-details">
@@ -268,21 +268,21 @@
                                 </div>
                                 <div class="detail-item">
                                     <span class="detail-label">Publicacao</span>
-                                    <c:set var="dataParts" value="${fn:split(livro.dataPublicacao, '-')}"/>
+                                    <c:set var="dataParts" value="${fn:split(livro.dtPublicacao, '-')}"/>
                                     <span class="detail-value"><c:out value="${dataParts[2]}/${dataParts[1]}/${dataParts[0]}" /></span>
                                 </div>
                             </div>
 
                             <span class="price-tag">
                                 <fmt:setLocale value="pt_BR"/>
-                                <fmt:formatNumber value="${livro.valorLivro}" type="currency"/>
+                                <fmt:formatNumber value="${livro.preco}" type="currency"/>
                             </span>
 
                             <div class="book-actions">
-                                <a href="${pageContext.request.contextPath}/livros/editar?id=<c:out value='${livro.id}' />" class="btn btn-outline">
+                                <a href="${pageContext.request.contextPath}/livros/editar?id=<c:out value='${livro.codigo}' />" class="btn btn-outline">
                                     Editar
                                 </a>
-                                <a href="${pageContext.request.contextPath}/livros/excluir?id=<c:out value='${livro.id}' />" class="btn btn-danger" onclick="return confirm('Excluir este registro?');">
+                                <a href="${pageContext.request.contextPath}/livros/excluir?id=<c:out value='${livro.codigo}' />" class="btn btn-danger" onclick="return confirm('Excluir este registro?');">
                                     Remover
                                 </a>
                             </div>

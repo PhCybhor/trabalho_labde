@@ -169,7 +169,7 @@
         </header>
 
         <c:choose>
-            <c:when test="${empty listEstados}">
+            <c:when test="${empty listaEstados}">
                 <div class="empty-state">
                     <h2 style="margin-bottom: 1rem;">Nenhum estado cadastrado</h2>
                     <p>Cadastre o primeiro estado do sistema.</p>
@@ -187,16 +187,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="estado" items="${listEstados}">
+                            <c:forEach var="estado" items="${listaEstados}">
                                 <tr>
-                                    <td><c:out value="${estado.id}" /></td>
-                                    <td><c:out value="${estado.nomeEstado}" /></td>
-                                    <td><span class="sigla-badge"><c:out value="${estado.siglaEstado}" /></span></td>
+                                    <td><c:out value="${estado.codigo}" /></td>
+                                    <td><c:out value="${estado.descricao}" /></td>
+                                    <td><span class="sigla-badge"><c:out value="${estado.uf}" /></span></td>
                                     <td>
                                         <div class="actions">
-                                            <a href="${pageContext.request.contextPath}/estados/editar?id=<c:out value='${estado.id}' />"
+                                            <a href="${pageContext.request.contextPath}/estados/editar?id=<c:out value='${estado.codigo}' />"
                                                class="btn btn-outline">Editar</a>
-                                            <a href="${pageContext.request.contextPath}/estados/excluir?id=<c:out value='${estado.id}' />"
+                                            <a href="${pageContext.request.contextPath}/estados/excluir?id=<c:out value='${estado.codigo}' />"
                                                class="btn btn-danger"
                                                onclick="return confirm('Excluir este estado?');">Excluir</a>
                                         </div>

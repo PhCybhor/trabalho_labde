@@ -171,7 +171,7 @@
 
             <h2 class="form-title">
                 <c:choose>
-                    <c:when test="${estado != null && estado.id > 0}">Editar Estado</c:when>
+                    <c:when test="${estado != null && estado.codigo > 0}">Editar Estado</c:when>
                     <c:otherwise>Novo Estado</c:otherwise>
                 </c:choose>
             </h2>
@@ -180,23 +180,23 @@
                 <div class="alert-error"><c:out value="${erro}" /></div>
             </c:if>
 
-            <form id="formEstado" action="${pageContext.request.contextPath}/estados/${estado != null && estado.id > 0 ? 'atualizar' : 'inserir'}" method="post" novalidate>
-                <c:if test="${estado != null && estado.id > 0}">
-                    <input type="hidden" name="id" id="estadoId" value="<c:out value='${estado.id}' />" />
+            <form id="formEstado" action="${pageContext.request.contextPath}/estados/${estado != null && estado.codigo > 0 ? 'atualizar' : 'inserir'}" method="post" novalidate>
+                <c:if test="${estado != null && estado.codigo > 0}">
+                    <input type="hidden" name="id" id="estadoId" value="<c:out value='${estado.codigo}' />" />
                 </c:if>
 
                 <div class="form-group">
-                    <label class="form-label" for="nomeEstado">Nome do Estado</label>
-                    <input type="text" id="nomeEstado" class="form-control" name="nomeEstado"
-                           value="<c:out value='${estado.nomeEstado}' />"
+                    <label class="form-label" for="descricao">Nome do Estado</label>
+                    <input type="text" id="descricao" class="form-control" name="descricao"
+                           value="<c:out value='${estado.descricao}' />"
                            required maxlength="100">
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label" for="siglaEstado">Sigla (UF)</label>
-                        <input type="text" id="siglaEstado" class="form-control" name="siglaEstado"
-                               value="<c:out value='${estado.siglaEstado}' />"
+                        <label class="form-label" for="uf">Sigla (UF)</label>
+                        <input type="text" id="uf" class="form-control" name="uf"
+                               value="<c:out value='${estado.uf}' />"
                                required maxlength="2" minlength="2"
                                pattern="[A-Za-z]{2}" title="Informe exatamente 2 letras">
                         <p id="siglaErro" class="field-error">Esta sigla ja esta cadastrada.</p>
@@ -212,15 +212,15 @@
     </div>
 
     <script>
-        const siglasExistentes = [
-            <c:forEach var="sigla" items="${siglasExistentes}" varStatus="status">
+        const ufsCadastradas = [
+            <c:forEach var="sigla" items="${ufsCadastradas}" varStatus="status">
             '<c:out value="${sigla}" />'<c:if test="${!status.last}">,</c:if>
             </c:forEach>
         ];
 
         const estadoIdEl = document.getElementById('estadoId');
         const estadoId = estadoIdEl ? parseInt(estadoIdEl.value, 10) : null;
-        const siglaInput = document.getElementById('siglaEstado');
+        const siglaInput = document.getElementById('uf');
         const siglaErro = document.getElementById('siglaErro');
         const form = document.getElementById('formEstado');
 
@@ -234,12 +234,12 @@
                 return false;
             }
 
-            const siglaAtualEdicao = normalizarSigla('${estado.siglaEstado}');
+            const siglaAtualEdicao = normalizarSigla('${estado.uf}');
             if (estadoId && siglaNormalizada === siglaAtualEdicao) {
                 return false;
             }
 
-            return siglasExistentes.includes(siglaNormalizada);
+            return ufsCadastradas.includes(siglaNormalizada);
         }
 
         function validarSigla(mostrarErro) {

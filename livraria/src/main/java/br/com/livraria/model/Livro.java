@@ -3,40 +3,42 @@ package br.com.livraria.model;
 import java.time.LocalDate;
 
 public class Livro {
-    
-    private int id;
-    private String nomeLivro;
+
+    private int codigo;
+    private String titulo;
     private String isbn;
     private String autor;
-    private LocalDate dataPublicacao;
-    private double valorLivro;
+    private String email;
+    private LocalDate dtPublicacao;
+    private double preco;
 
     public Livro() {
     }
 
-    public Livro(int id, String nomeLivro, String isbn, String autor, LocalDate dataPublicacao, double valorLivro) {
-        this.id = id;
-        this.nomeLivro = nomeLivro;
+    public Livro(int codigo, String titulo, String isbn, String autor, String email, LocalDate dtPublicacao, double preco) {
+        this.codigo = codigo;
+        this.titulo = titulo;
         this.isbn = isbn;
         this.autor = autor;
-        this.dataPublicacao = dataPublicacao;
-        this.valorLivro = valorLivro;
+        this.email = email;
+        this.dtPublicacao = dtPublicacao;
+        this.preco = preco;
     }
 
-    public int getId() {
-        return id;
+    public int getCodigo() {
+        return codigo;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setCodigo(int codigo) {
+        this.codigo = codigo;
     }
 
-    public String getNomeLivro() {
-        return nomeLivro;
+    public String getTitulo() {
+        return titulo;
     }
 
-    public void setNomeLivro(String nomeLivro) {
-        this.nomeLivro = nomeLivro;
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
     }
 
     public String getIsbn() {
@@ -55,30 +57,38 @@ public class Livro {
         this.autor = autor;
     }
 
-    public LocalDate getDataPublicacao() {
-        return dataPublicacao;
+    public String getEmail() {
+        return email;
     }
 
-    public void setDataPublicacao(LocalDate dataPublicacao) {
-        this.dataPublicacao = dataPublicacao;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public double getValorLivro() {
-        return valorLivro;
+    public LocalDate getDtPublicacao() {
+        return dtPublicacao;
     }
 
-    public void setValorLivro(double valorLivro) {
-        this.valorLivro = valorLivro;
+    public void setDtPublicacao(LocalDate dtPublicacao) {
+        this.dtPublicacao = dtPublicacao;
     }
 
-    public String getDataPublicacaoFormatada() {
-        if (this.dataPublicacao != null) {
-            return this.dataPublicacao.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    public double getPreco() {
+        return preco;
+    }
+
+    public void setPreco(double preco) {
+        this.preco = preco;
+    }
+
+    public String getPublicacaoFormatada() {
+        if (this.dtPublicacao != null) {
+            return this.dtPublicacao.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         }
         return "";
     }
 
-    public String getValorLivroFormatado() {
-        return String.format(java.util.Locale.forLanguageTag("pt-BR"), "%.2f", this.valorLivro);
+    public String getPrecoFormatado() {
+        return String.format(java.util.Locale.forLanguageTag("pt-BR"), "%.2f", this.preco);
     }
 }

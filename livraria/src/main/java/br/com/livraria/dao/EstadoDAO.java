@@ -12,78 +12,78 @@ import java.util.List;
 
 public class EstadoDAO {
 
-    private final Conexao conexao;
+    private final Conexao fonteDados;
 
     public EstadoDAO() {
-        this.conexao = new Conexao();
+        this.fonteDados = new Conexao();
     }
 
-    public void adicionar(Estado estado) {
-        String sql = "INSERT INTO estados (nome_estado, sigla_estado) VALUES (?, ?)";
-        try (Connection conn = conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+    public void adicionar(Estado registro) {
+        String consulta = "INSERT INTO estados (nome_estado, sigla_estado) VALUES (?, ?)";
+        try (Connection conexaoJdbc = fonteDados.getConexao();
+             PreparedStatement comando = conexaoJdbc.prepareStatement(consulta)) {
 
-            stmt.setString(1, estado.getNomeEstado());
-            stmt.setString(2, normalizarSigla(estado.getSiglaEstado()));
-            stmt.execute();
+            comando.setString(1, registro.getDescricao());
+            comando.setString(2, formatarUf(registro.getUf()));
+            comando.execute();
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao adicionar estado", e);
         }
     }
 
-    public void atualizar(Estado estado) {
-        String sql = "UPDATE estados SET nome_estado = ?, sigla_estado = ? WHERE id = ?";
-        try (Connection conn = conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+    public void atualizar(Estado registro) {
+        String consulta = "UPDATE estados SET nome_estado = ?, sigla_estado = ? WHERE id = ?";
+        try (Connection conexaoJdbc = fonteDados.getConexao();
+             PreparedStatement comando = conexaoJdbc.prepareStatement(consulta)) {
 
-            stmt.setString(1, estado.getNomeEstado());
-            stmt.setString(2, normalizarSigla(estado.getSiglaEstado()));
-            stmt.setInt(3, estado.getId());
-            stmt.execute();
+            comando.setString(1, registro.getDescricao());
+            comando.setString(2, formatarUf(registro.getUf()));
+            comando.setInt(3, registro.getCodigo());
+            comando.execute();
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao atualizar estado", e);
         }
     }
 
-    public void remover(int id) {
-        String sql = "DELETE FROM estados WHERE id = ?";
-        try (Connection conn = conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+    public void remover(int codigo) {
+        String consulta = "DELETE FROM estados WHERE id = ?";
+        try (Connection conexaoJdbc = fonteDados.getConexao();
+             PreparedStatement comando = conexaoJdbc.prepareStatement(consulta)) {
 
-            stmt.setInt(1, id);
-            stmt.execute();
+            comando.setInt(1, codigo);
+            comando.execute();
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao remover estado", e);
         }
     }
 
     public List<Estado> listarTodos() {
-        List<Estado> estados = new ArrayList<>();
-        String sql = "SELECT * FROM estados ORDER BY nome_estado ASC";
+        List<Estado> retorno = new ArrayList<>();
+        String consulta = "SELECT * FROM estados ORDER BY nome_estado ASC";
 
-        try (Connection conn = conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (Connection conexaoJdbc = fonteDados.getConexao();
+             PreparedStatement comando = conexaoJdbc.prepareStatement(consulta);
+             ResultSet resultado = comando.executeQuery()) {
 
-            while (rs.next()) {
-                estados.add(mapearEstado(rs));
+            while (resultado.next()) {
+                retorno.add(montarEstado(resultado));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao listar estados", e);
         }
-        return estados;
+        return retorno;
     }
 
-    public Estado buscarPorId(int id) {
-        String sql = "SELECT * FROM estados WHERE id = ?";
+    public Estado buscarPorId(int codigo) {
+        String consulta = "SELECT * FROM estados WHERE id = ?";
 
-        try (Connection conn = conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conexaoJdbc = fonteDados.getConexao();
+             PreparedStatement comando = conexaoJdbc.prepareStatement(consulta)) {
 
-            stmt.setInt(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearEstado(rs);
+            comando.setInt(1, codigo);
+            try (ResultSet resultado = comando.executeQuery()) {
+                if (resultado.next()) {
+                    return montarEstado(resultado);
                 }
             }
         } catch (SQLException e) {
@@ -92,23 +92,23 @@ public class EstadoDAO {
         return null;
     }
 
-    public boolean existeSiglaEstado(String sigla, Integer idIgnorar) {
-        String sql = "SELECT COUNT(*) FROM estados WHERE UPPER(sigla_estado) = ?";
-        if (idIgnorar != null) {
-            sql += " AND id <> ?";
+    public boolean ufJaCadastrada(String uf, Integer codigoIgnorar) {
+        String consulta = "SELECT COUNT(*) FROM estados WHERE UPPER(sigla_estado) = ?";
+        if (codigoIgnorar != null) {
+            consulta += " AND id <> ?";
         }
 
-        try (Connection conn = conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conexaoJdbc = fonteDados.getConexao();
+             PreparedStatement comando = conexaoJdbc.prepareStatement(consulta)) {
 
-            stmt.setString(1, normalizarSigla(sigla));
-            if (idIgnorar != null) {
-                stmt.setInt(2, idIgnorar);
+            comando.setString(1, formatarUf(uf));
+            if (codigoIgnorar != null) {
+                comando.setInt(2, codigoIgnorar);
             }
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
+            try (ResultSet resultado = comando.executeQuery()) {
+                if (resultado.next()) {
+                    return resultado.getInt(1) > 0;
                 }
             }
         } catch (SQLException e) {
@@ -117,18 +117,18 @@ public class EstadoDAO {
         return false;
     }
 
-    private Estado mapearEstado(ResultSet rs) throws SQLException {
-        Estado estado = new Estado();
-        estado.setId(rs.getInt("id"));
-        estado.setNomeEstado(rs.getString("nome_estado"));
-        estado.setSiglaEstado(rs.getString("sigla_estado"));
-        return estado;
+    private Estado montarEstado(ResultSet resultado) throws SQLException {
+        Estado item = new Estado();
+        item.setCodigo(resultado.getInt("id"));
+        item.setDescricao(resultado.getString("nome_estado"));
+        item.setUf(resultado.getString("sigla_estado"));
+        return item;
     }
 
-    private String normalizarSigla(String sigla) {
-        if (sigla == null) {
+    private String formatarUf(String uf) {
+        if (uf == null) {
             return "";
         }
-        return sigla.trim().toUpperCase();
+        return uf.trim().toUpperCase();
     }
 }
